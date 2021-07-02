@@ -1,4 +1,4 @@
-## Welcome to GitHub Pages
+## This is Evan Baber's GitHub Pages ePortfolio - No text has been modified yet
 
 You can use the [editor on GitHub](https://github.com/Walker1889/CS-499/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
 
