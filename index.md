@@ -5,7 +5,9 @@
 
 ## Code Review
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/kq2h2wBWpD4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+[![Code Review - Baber](https://img.youtube.com/vi/kq2h2wBWpD4/0.jpg)](https://www.youtube.com/watch?v=kq2h2wBWpD4)
+
+Description in progress
 
 ## Artifact #1
 
