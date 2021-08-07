@@ -399,10 +399,145 @@ int main()
 
 
 
-## Artifact #3
+## Artifact #3 - PyMongo CRUD Module
 
-``` Still in Progress ```
+``` python
+######################################################################################
+#   This a CRUD module written to interact with MongoDB databases                   ##
+#       via Pymongo                                                                 ##
+#                                                                                   ##
+#      Functions exist for:                                                         ##
+#          - Create / Create Multiple                                               ##
+#          - Read / Find                                                            ##
+#          - Update / Update Multiple                                               ##
+#          - Delete / Delete Multiple                                               ##
+#                                                                                   ##
+#   Instantiating the class (in this case "Store") starts a MongoClient             ##
+#       and allows access the the CRUD functions belonging to the class             ##
+######################################################################################
 
+from pymongo import MongoClient
+from bson.objectid import ObjectId
+from bson.json_util import dumps
+
+class Store(object):
+
+	# Class instantiation requires username and password of user capable of altering "MDB" class
+	def __init__(self, username, password):
+		self.client = MongoClient('mongodb://%s:%s@localhost:28697/?authMechanism=DEFAULT&authSource=MDB' % (username, password))
+		self.database = self.client['MDB']
+
+
+	# Method for Creating entries in a database
+	def create(self, data): # data argument should be in dictionary form
+		if data is not None:
+			insert_receipt = self.database.payroll.insert_one(data)
+	
+			# Checks for confirmation of insertion & returns True
+			if insert_receipt.inserted_id: 
+				print("Insert successful")
+				return True
+
+			else:
+				print("Insert failed")
+				return False
+
+		else:
+			# Raises exception if data is passed in empty
+			raise Exception("Nothing to create. Data parameter is empty")
+			return False
+            
+            
+    # Method to insert multiple entries, argument should be provided as an array
+    def createMany(self, data):
+        if data is not None:
+			insert_receipt = self.database.payroll.insertMany(data)
+	
+			# Checks for confirmation of insertion & returns True
+			if insert_receipt.inserted_id: 
+				print("Multiple insert successful")
+				return True
+
+			else:
+				print("Multiple Insert failed")
+				return False
+
+		else:
+			# Raises exception if data is passed in empty
+			raise Exception("Nothing to create. Data parameter is empty")
+			return False
+
+
+	# Method for searching for an entry in a database
+	def read(self, query): # Query argument should be in dictionary form
+		if query is not None:
+			search_receipt = self.database.payroll.find(query,{"_id":False})
+
+			# Print confirmation message & give cursor location of corresponding entry
+			return search_receipt
+
+		else:
+			# Raise exception for empty 'query' field
+			raise Exception("Read Failed. Search query is empty")
+
+
+	# Method for updating a specified entry in a database
+	def update(self, filter, updates):
+		if filter is not None:
+			update_receipt = self.database.payroll.find_one_and_update(filter, updates)
+
+			# Print confirmation message & give cursor location or corresponding entry
+			print("Update successful: ", dumps(update_receipt))
+
+		else:
+			#Raise exception for empty 'filter' field
+			raise Exception("Update Failed. Update field not specified")
+            
+            
+    # Method for updating multiple entries in a database
+	def updateMany(self, filter, updates):
+		if filter is not None:
+			update_receipt = self.database.payroll.updateMany(filter, updates)
+
+			# Print confirmation message & give cursor location or corresponding entry
+			print("Multiple update successful: ", dumps(update_receipt))
+
+		else:
+			#Raise exception for empty 'filter' field
+			raise Exception("Multiple Update Failed. Update field not specified")
+
+
+	# Method for deleting a specified entry in a database
+	def delete(self, delQuery):
+		if delQuery is not None:
+			delete_receipt = self.database.payroll.find_one_and_delete(delQuery)
+
+			# Print confirmation message & give cursor location or corresponding entry
+			print("Delete successful: ", dumps(delete_receipt))
+
+		else:
+			# Raise exception for empty 'delQuery' field
+			raise Exception("Delete Failed.  Delete field not specified")
+            
+            
+	# Method for deleting multiple entries in a database
+	def deleteMany(self, delQuery):
+		if delQuery is not None:
+			delete_receipt = self.database.payroll.deleteMany(delQuery)
+
+			# Print confirmation message & give cursor location or corresponding entry
+			print("Multiple Delete successful: ", dumps(delete_receipt))
+
+		else:
+			# Raise exception for empty 'delQuery' field
+			raise Exception("Multiple Delete Failed.  Delete field not specified")
+```
+
+######	This artifact is a MongoDB crud module written in Python for my CS-340 Client Server Development class in early 2021.  The initial incarnation of the program was intended to interact with an html dashboard that displayed information about animals housed in rescue shelters.  For the sake of displaying a more common use-case, I changed the focus of the database to be employees on a store’s payroll.  Likewise, the content of the dashboard was so closely related to the animal shelter data that I opted to only include the crud module itself as part of my portfolio.
+######	When looking back over the database applications I worked on during my coursework, I found that nearly all of them focused on using ready-made environments to simply query databases.  Likewise, I found my experience in data mining to be very interesting and engaging, but difficult to replicate in code form because so much of it had taken place in virtual environments with very large datasets.  I was drawn to include this custom built crud module because it represented a situation in which I wasn’t presented with a console ready to accept queries, but rather needed to find a way to mesh Python code with an extant database.  I particularly enjoyed the process of writing functions for each database process and how they would be handled by the program calling them.  In the end, I felt having to write each process individually gave me a better understanding of each crud process and a greater appreciation of what it takes to set up a data analysis environment.
+######	In its first version, the crud module contained only the first four methods necessary for adequate database manipulation.  Beyond creation, reading, updating, and destruction, however, I felt like functions should be included to allow the user to manipulate multiple entries at once.  With this in mind, I included functions to create, update, and delete multiple entries at once using a few ready-made MongoDB methods.  Reading already returns multiple entries depending on the query, so it was able to stay as is.  I know that frequently database analysis requires users to make broad manipulations of data at once, and that limiting changes to a single entry at a time would pose a huge bottleneck to larger tasks.  Along with this addition, I improved the crowded spacing of the initial version, added more adequate in-line comments, and provided a block of header documentation to let users know the purpose of the module.
+######	In this artifact, I accomplish the outcome “demonstrate an ability to use well-founded and innovative techniques, skills, and tools in computing practices for the purpose of implementing computer solutions that deliver value and accomplish industry-specific goals”.  Particularly, I found solving the problem of using PyMongo to allow Python code to manipulate a database to be a problem that I could very easily imagine a company facing if they weren’t adequately prepared when first approaching a database system.  Likewise, I’ve begun to consider the thorough commenting and documentation process as being a major part of “building collaborative environments” and “designing professional-quality oral, written, and visual communications” as outlined in outcomes one and two.  As a holder of a prior degree in a communications field, I have always appreciated when I am able to understand a program via its documentation without having to parse through the code first.  I think this type of communication is generally underappreciated among programmers until it is noticeably absent.  
+######	Unlike my previous artifact which I had initially intended to overcomplicate the scope of, the enhancements to this module fit precisely as I imagined they would.  From a birds-eye view, I knew that if this crud module were being used in a database manipulation environment, that the single-entry limit would pose a major obstacle as soon as more complex tasks became necessary.  Pleasantly, but unsurprisingly, MongoDB implemented standard methods for these tasks nearly six years ago, so tacking on the additional functions was a painless improvement that improved the effectiveness of the module greatly.  More than anything, I attempted to put myself in the shoes of a data analyst using my module after coming upon it for the first time.  I wanted my function names to hew to a simple standard, and for each function to be as well documented as possible to allow them to know the proper data types to input without time-wasting trial and error.  As mentioned previously, this was easily the database assignment that I was most thankful to have worked on during my courses.  Despite not having to write a single query, it helped me understand what an analysis environment looks like and that one can be created from scratch if need be.
 
 
 For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
