@@ -143,9 +143,260 @@ while True:
 ######	Luckily, this milestone’s artifact was the same one that I just conducted my code review on last week.  Given that, all of my planned enhancements had already been documented in detail and were still fresh in my mind.  While some of my planned enhancements were more in the vein of maintaining coding standards, the ones I enjoyed implementing the most were those where I was choosing to alter the focus of the application or shore up its security.  While standards are valuable and in place for a reason, I found shifting the way the program worked to still meet its base requirements in a more creative way was much more fulfilling.  I think developing for a satellite system like the Pi puts me in a more creative mindset than a normal desktop development might.  Likewise, working with peripheral devices can present its own benefits and challenges.  While setting up the LCD output was easier than expected due to the simplicity of the included GrovePi functions, working out the times the program needed to briefly wait before taking readings was as much of a guessing game as ever.
 
 
-## Artifact #2
+## Artifact #2 - SQL Injection Detector
 
-``` Still in Progress ```
+``` c++
+/*  This program creates a simple database and runs several attempts at SQL injection attacks against it
+*   A database is initialized with four user accounts & passwords
+*   A text-filter is used to detect potential injection attacks & could easily be used in a live environment as well
+* 
+*   For this method to be fully effective, the hypothetical user account creation tool would need - 
+*       to implement rules forbidding spaces & uncommon characters (most do this anyway) to prevent false positives
+* 
+*   Failed injection attempts will return an error message
+*   Successful injection attempts will return a readable copy of the database's contents
+*/
+
+#include <algorithm>
+#include <iostream>
+#include <locale>
+#include <tuple>
+#include <vector>
+#include <sqlite3.h>
+
+// Initializing needed variables for database & queries
+typedef std::tuple<std::string, std::string, std::string> user_record;
+const std::string str_where = " where ";
+
+static int callback(void* possible_vector, int argc, char** argv, char** azColName)
+{
+    if (possible_vector == NULL)
+    {   // no vector passed in, so we just display the results
+        for (int i = 0; i < argc; i++)
+        {
+            std::cout << azColName[i] << " = " << (argv[i] ? argv[i] : "NULL") << std::endl;
+        }
+        std::cout << std::endl;
+    }
+    else
+    {   // else the vector is passed into database and an entry is created
+        std::vector< user_record >* rows =
+            static_cast<std::vector< user_record > *>(possible_vector);
+
+        rows->push_back(std::make_tuple(argv[0], argv[1], argv[2]));
+    }
+    return 0;
+}
+
+// Initialized database, defines structure
+bool initialize_database(sqlite3* db)
+{
+    // Creates a simple three-column database to be probed: ID, Name, and Password columns
+    char* error_message = NULL;
+    std::string sql = "CREATE TABLE USERS(" \
+        "ID INT PRIMARY KEY     NOT NULL," \
+        "NAME           TEXT    NOT NULL," \
+        "PASSWORD       TEXT    NOT NULL);";
+
+    int result = sqlite3_exec(db, sql.c_str(), callback, NULL, &error_message);
+    if (result != SQLITE_OK)
+    {
+        // error handler for failure to create database
+        std::cout << "Failed to create USERS table. ERROR = " << error_message << std::endl;
+        sqlite3_free(error_message);
+        return false;
+    }
+    std::cout << "USERS table created." << std::endl;
+
+    // Inserts four dummy accounts into the database
+    sql = "INSERT INTO USERS (ID, NAME, PASSWORD)" \
+        "VALUES (1, 'John', 'Pass1');" \
+        "INSERT INTO USERS (ID, NAME, PASSWORD)" \
+        "VALUES (2, 'Jane', 'Pass2');" \
+        "INSERT INTO USERS (ID, NAME, PASSWORD)" \
+        "VALUES (3, 'Jules', 'Pass3');" \
+        "INSERT INTO USERS (ID, NAME, PASSWORD)" \
+        "VALUES (4, 'Jim', 'Pass4');";
+
+    result = sqlite3_exec(db, sql.c_str(), callback, NULL, &error_message);
+    if (result != SQLITE_OK)
+    {
+        // Error handler for failure to properly insert data
+        std::cout << "Data failed to insert to USERS table. ERROR = " << error_message << std::endl;
+        sqlite3_free(error_message);
+        return false;
+    }
+
+    return true;
+}
+
+bool run_query(sqlite3* db, const std::string& sql, std::vector< user_record >& records)
+{
+    
+    // Simple search criteria for possible injections
+    // All injection attempts will reqire an "or" statement
+    // Stringent username & password criteria in a live system will prevent this from producing false positives
+    std::string threatStr = " or ";
+
+    // clears any prior results
+    records.clear();
+
+    // checks for threat string within a given command, positive yeilds an int
+    try {
+        // if found, throws an error
+        if (sql.find(threatStr) != std::string::npos) {       
+            throw 99;                                         
+        }
+    }
+    catch (...) {
+        // Will not execute command, thus no results to dump
+        std::cout << "Error: Possible SQL injection detected ... Query failed" << std::endl;
+        return false;     
+    }
+
+    // Exception handler in the event of SQLite error
+    char* error_message;
+    if (sqlite3_exec(db, sql.c_str(), callback, &records, &error_message) != SQLITE_OK)
+    {
+        std::cout << "Data failed to be queried from USERS table. ERROR = " << error_message << std::endl;
+        sqlite3_free(error_message);
+        return false;
+    }
+
+    return true;
+}
+
+// Chooses a randomly selected SQL injection tactic to append to a normal query attempt
+// This method is run five times during Main()
+bool run_query_injection(sqlite3* db, const std::string& sql, std::vector< user_record >& records)
+{
+    std::string injectedSQL(sql);
+    std::string localCopy(sql);
+
+    // we work on the local copy because of the const
+    std::transform(localCopy.begin(), localCopy.end(), localCopy.begin(), ::tolower);
+    if (localCopy.find_last_of(str_where) >= 0)
+    { // this sql has a where clause
+        if (localCopy.back() == ';')
+        { // removes semicolon to allow injection to be appended, semicolon is reappended during attack text
+            injectedSQL.pop_back();
+        }
+
+        switch (rand() % 4)
+        {
+        // Four flavors of the same " or " SQL injection attack
+        // Weeding out the "or" keyword is essential in stopping injections
+        case 1:
+            injectedSQL.append(" or 2=2;");
+            break;
+        case 2:
+            injectedSQL.append(" or 'string'='string';");
+            break;
+        case 3:
+            injectedSQL.append(" or 'keyword'='keyword';");
+            break;
+        case 0:
+        default:
+            injectedSQL.append(" or 1=1;");
+            break;
+        }
+    }
+
+    return run_query(db, injectedSQL, records);
+}
+
+
+// Prints a copy of the SQL queries and the associated results to the console
+void dump_results(const std::string& sql, const std::vector< user_record >& records)
+{
+    std::cout << std::endl << "SQL: " << sql << " ==> " << records.size() << " records found." << std::endl;
+
+    // If injection is successful, this loop prints out the database's contents in a more readable form
+    for (auto record : records)
+    {
+        std::cout << "User: " << std::get<1>(record) << " [UID=" << std::get<0>(record) << " PWD=" << std::get<2>(record) << "]" << std::endl;
+    }
+}
+
+// Runs 6 SQL queries: 2 normal and 5 injection attempts
+// Injection attempts will produce exceptions if handled well, readable DB resutls if not
+void run_queries(sqlite3* db)
+{
+    char* error_message = NULL;
+
+    std::vector< user_record > records;
+
+    //  Query all
+    std::string sql = "SELECT * from USERS";
+    if (!run_query(db, sql, records)) return;
+    dump_results(sql, records);
+
+    //  Legitimate query
+    sql = "SELECT ID, NAME, PASSWORD FROM USERS WHERE NAME='John'";
+    if (!run_query(db, sql, records)) return;
+    dump_results(sql, records);
+
+    //  Run query with injection 5 times
+    for (auto i = 0; i < 5; ++i)
+    {
+        if (!run_query_injection(db, sql, records)) continue;
+        dump_results(sql, records);
+    }
+
+}
+
+int main()
+{
+    // Initialize random seed:
+    srand(time(nullptr));
+
+    int return_code = 0;
+    std::cout << "SQL Injection Example" << std::endl;
+
+    // The database handler
+    sqlite3* db = NULL;
+    char* error_message = NULL;
+
+    // Open the database connection
+    int result = sqlite3_open(":memory:", &db);
+
+    // Handles SQLite errors
+    if (result != SQLITE_OK)
+    {
+        std::cout << "Failed to connect to the database and terminating. ERROR=" << sqlite3_errmsg(db) << std::endl;
+        return -1;
+    }
+
+    std::cout << "Connected to the database." << std::endl;
+
+    // Exception handler for bad database creation
+    if (!initialize_database(db))
+    {
+        std::cout << "Database Initialization Failed. Terminating." << std::endl;
+        return_code = -1;
+    }
+    else
+    {
+        // Runs our Queries, which in turn runs our injection attempts
+        run_queries(db);
+    }
+
+    // Closes the SQLite connection, if open
+    if (db != NULL)
+    {
+        sqlite3_close(db);
+    }
+
+    return return_code;
+```
+
+######	The artifact I’ve chosen to submit for milestone three is a SQL injection detector built in C++ that I originally created for CS-405 in early 2021.  While the program itself is mainly concerned with the building of the sample SQLite database, the detection portion shows off a simple text filtration method for testing user input for potential SQL injection attacks.  I began to develop an interest in information security almost from day one in my secure coding class, and really wanted to include an artifact from it in my ePortfolio to cover another area of interest that I discovered in my time at SNHU.  
+######	Admittedly, the more I peruse this program, the simpler it seems to me.  Upon further inspection, the actual security measure portion of my code occupies only a few lines.  However, I still believe it fits the bill of demonstrating the use of data structures and algorithms.  Algorithmically, it is very light, and aside from methods parsing text and slicing a final character form a string (and pre-built methods at that), I can’t say the artifact employs anything approaching a complex sorting algorithm.  The requirements of the program are light, and the tools used to accomplish them are similarly light.  
+######	When it comes to data structures, however, I’ve made use of tuples, vectors, and arrays for different uses throughout the program, especially as they pertain to setting up the architecture of my sample database.  While they may fall slightly short of the handmade linked-lists from my data structures & algorithms class, I wanted this artifact to balance structures I could easily explain with an information security task I was enthusiastic about.  To improve this artifact, I originally sought to strengthen the injection protection, improve a cluttered design, and make the program more understandable through in-line and header documentation
+######	I consider this artifact to demonstrate the following outcomes in particular: “Design and evaluate computing solutions that solve a given problem using algorithmic principles and computer science practices and standards appropriate to its solution, while managing the trade-offs involved in design choices” and “Develop a security mindset that anticipates adversarial exploits in software architecture and designs to expose potential vulnerabilities, mitigate design flaws, and ensure privacy and enhanced security of data and resources”.  I believe the software engineering and design outcome to be represented here as well, although I think my previous artifact demonstrates it more purely than this one does.  
+######	When initially considering how to improve this artifact, I took for granted that I had left some sort of backdoor method open to circumvent the SQL injection protection I built into the program.  During some assignments, I felt as though a single type of attack was being circumvented while leaving the program open to others.  I even wrote my initial enhancement proposal on the understanding that my injection protection was second-rate and could be easily improved.  I was pleasantly surprised to find that a simple solution could truly be effective in this case.  Preventing injection is all about stopping the user from tacking on an equivalence statement such as 1=1 to their commands, and a text filter accomplishes just that.  In a wider hypothetical login environment, users would need to be forbidden from adding spaces to their usernames or passwords, which is already a ubiquitous standard as it is.  Aside from changing a bit of the aesthetic organization of the program, I brought all of the variable names under a simple standard, added more and better in-line comments, and provided a short block of header documentation.
+######	I found this artifact initially more challenging to enhance than the first.  Not due the complexity of the program, but due to its smaller scope.  At its base, this program is a demo showing how text entry fields can be guarded from a specific type of attack.  I consider the final product to be extremely successful in that regard and am pleased not to have tacked any unnecessary functionality that might muddy its purpose.  Like my first artifact did with IoT devices, I was eager to include this one in my ePortfolio to show enthusiasm for part of the CS field that I found an interest in through my coursework.  If I’m successful in my aims, I’ll have a portfolio that contains brief programs with clear purposes that demonstrate a diversity of interests rather than simply the most complex problems I’ve worked on.
+
 
 
 ## Artifact #3
