@@ -1,4 +1,5 @@
 # Portfolio - Evan Baber
+
 <br/>
 
 ## Portfolio Introduction & Professional Self-Assessment
@@ -28,10 +29,10 @@
 
 <details>
 	<summary> Video - Code Review </summary>
-
+	
+<br/>
+	
 [![Code Review - Baber](https://img.youtube.com/vi/kq2h2wBWpD4/0.jpg)](https://www.youtube.com/watch?v=kq2h2wBWpD4)
-
-Description in progress
 
 </details>
 <br/>
@@ -595,5 +596,5 @@ class Store(object):
 </details>
 <br/>
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-You can use the [editor on GitHub](https://github.com/Walker1889/CS-499/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+*** Delete this link before publishing ***
+[editor on GitHub](https://github.com/Walker1889/CS-499/edit/gh-pages/index.md) 
