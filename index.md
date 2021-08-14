@@ -5,7 +5,7 @@
 ## Portfolio Introduction & Professional Self-Assessment
 
 <details>
-	<summary> Text - Introduction & Self-Assessment </summary>
+	<summary> ⬇️ Text - Introduction & Self-Assessment </summary>
 
 <br/>	
 	
@@ -30,7 +30,7 @@
 ## Code Review
 
 <details>
-	<summary> Video - Code Review </summary>
+	<summary> ⬇️ Video - Code Review </summary>
 	
 <br/>
 	
@@ -42,7 +42,7 @@
 ## Artifact 1 - IoT Temperature & Humidity Sensor Hub
 	
 <details>
-	<summary> Code - Artifact 1 </summary>
+	<summary> ⬇️ Code - Artifact 1 </summary>
 	
 <br/>
 	
@@ -173,8 +173,10 @@ while True:
 ```
 </details>	
 
+<br/>
+
 <details>
-	<summary> Narrative - Artifact 1 </summary>
+	<summary> ⬇️ Narrative - Artifact 1 </summary>
 	
 <br/>	
 
