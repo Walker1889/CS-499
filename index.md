@@ -25,6 +25,9 @@
 #####	My third and final artifact is a CRUD module I wrote to interface with MongoDB databases with Python.  Architecturally, the program is simply a list of functions allowing the user to create, read, update, and delete database objects (plus some additional functionality added during enhancements).  Although simple in build, I treasure the experience of having had to build this module because it showcases solving a common problem with ingenuity.  Barely any business operates today without the need for database manipulation, but the ability to do so simply with built-in tools is often taken for granted.  With this artifact, I could create a data analysis environment from scratch where none existed before.  Although structurally simple, I like the convergence of data analysis and problem solving this artifact represents and opted to use it to round out the final spot in my portfolio.
 	
 </details>
+
+<br/>
+
 <br/>
 
 ## Code Review
@@ -37,6 +40,9 @@
 [![Code Review - Baber](https://img.youtube.com/vi/kq2h2wBWpD4/0.jpg)](https://www.youtube.com/watch?v=kq2h2wBWpD4)
 
 </details>
+
+<br/>
+
 <br/>
 
 ## Artifact 1 - IoT Temperature & Humidity Sensor Hub
@@ -186,12 +192,15 @@ while True:
 #####	Luckily, this milestone’s artifact was the same one that I just conducted my code review on last week.  Given that, all of my planned enhancements had already been documented in detail and were still fresh in my mind.  While some of my planned enhancements were more in the vein of maintaining coding standards, the ones I enjoyed implementing the most were those where I was choosing to alter the focus of the application or shore up its security.  While standards are valuable and in place for a reason, I found shifting the way the program worked to still meet its base requirements in a more creative way was much more fulfilling.  I think developing for a satellite system like the Pi puts me in a more creative mindset than a normal desktop development might.  Likewise, working with peripheral devices can present its own benefits and challenges.  While setting up the LCD output was easier than expected due to the simplicity of the included GrovePi functions, working out the times the program needed to briefly wait before taking readings was as much of a guessing game as ever.
 
 </details>
+
+<br/>
+
 <br/>
 
 ## Artifact 2 - SQL Injection Detector
 
 <details>
-	<summary> Code - Artifact 2 </summary>
+	<summary> ⬇️ Code - Artifact 2 </summary>
 	
 <br/>	
 
@@ -443,7 +452,7 @@ int main()
 </details>	
 
 <details>
-	<summary> Narrative - Artifact 2 </summary>
+	<summary> ⬇️ Narrative - Artifact 2 </summary>
 	
 <br/>	
 
@@ -455,12 +464,15 @@ int main()
 #####	I found this artifact initially more challenging to enhance than the first.  Not due the complexity of the program, but due to its smaller scope.  At its base, this program is a demo showing how text entry fields can be guarded from a specific type of attack.  I consider the final product to be extremely successful in that regard and am pleased not to have tacked any unnecessary functionality that might muddy its purpose.  Like my first artifact did with IoT devices, I was eager to include this one in my ePortfolio to show enthusiasm for part of the CS field that I found an interest in through my coursework.  If I’m successful in my aims, I’ll have a portfolio that contains brief programs with clear purposes that demonstrate a diversity of interests rather than simply the most complex problems I’ve worked on.
 
 </details>
+	
 <br/>
+
+<br/>	
 
 ## Artifact 3 - PyMongo CRUD Module
 
 <details>
-	<summary> Code - Artifact 3 </summary>
+	<summary> ⬇️ Code - Artifact 3 </summary>
 	
 <br/>	
 
@@ -599,7 +611,7 @@ class Store(object):
 </details>
 	
 <details>
-	<summary> Narrative - Artifact 3 </summary>
+	<summary> ⬇️ Narrative - Artifact 3 </summary>
 	
 <br/>	
 
