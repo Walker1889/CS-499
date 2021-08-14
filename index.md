@@ -450,6 +450,8 @@ int main()
 ```
 										
 </details>	
+	
+<br/>
 
 <details>
 	<summary> ⬇️ Narrative - Artifact 2 </summary>
@@ -609,6 +611,8 @@ class Store(object):
 ```
 	
 </details>
+	
+<br/>
 	
 <details>
 	<summary> ⬇️ Narrative - Artifact 3 </summary>
